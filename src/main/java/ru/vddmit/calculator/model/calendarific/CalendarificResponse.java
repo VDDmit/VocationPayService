@@ -1,32 +1,35 @@
 package ru.vddmit.calculator.model.calendarific;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CalendarificResponse {
-    private Meta meta;
-    private CalendarificData response;
+    Meta meta;
+    CalendarificData response;
 
     @Data
     public static class Meta {
-        private int code;
+        int code;
     }
 
     @Data
     public static class CalendarificData {
-        private List<Holiday> holidays;
+        List<Holiday> holidays;
     }
 
     @Data
     public static class Holiday {
-        private String name;
-        private DateWrapper date;
+        String name;
+        DateWrapper date;
 
         @Data
         public static class DateWrapper {
-            private String iso;
+            String iso;
         }
     }
 }

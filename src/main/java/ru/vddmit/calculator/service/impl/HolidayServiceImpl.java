@@ -10,7 +10,6 @@ import ru.vddmit.calculator.api.CalendarificClient;
 import ru.vddmit.calculator.model.calendarific.CalendarificResponse;
 import ru.vddmit.calculator.service.HolidayService;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
@@ -23,19 +22,32 @@ import java.util.stream.Collectors;
 public class HolidayServiceImpl implements HolidayService {
 
     final CalendarificClient calendarificClient;
+
     @Value("${calendarific.api-key}")
     String apiKey;
 
+    private static final String COUNTRY_CODE = "RU";
+
     @Override
-    public Set<LocalDate> getPublicHolidays(String countryCode, int year) {
+    public Set<LocalDate> getPublicHolidays(int year) {
         try {
-            CalendarificResponse response = calendarificClient.getHolidays(apiKey, countryCode, year, "national");
-            return response.getResponse().getHolidays().stream()
+            CalendarificResponse response = calendarificClient.getHolidays(
+                    apiKey,
+                    COUNTRY_CODE,
+                    year,
+                    "national"
+            );
+
+            Set<LocalDate> holidays = response.getResponse().getHolidays().stream()
                     .map(h -> LocalDate.parse(h.getDate().getIso()))
                     .collect(Collectors.toSet());
+
+            log.info("Received {} holidays for {} year: {}", holidays.size(), year, holidays);
+            return holidays;
+
         } catch (Exception e) {
-            log.error("Failed to fetch holidays from Calendarific API for country={} and year={}. Reason: {}",
-                    countryCode, year, e.getMessage(), e);
+            log.error("Failed to fetch holidays for country={} and year={}. Reason: {}",
+                    COUNTRY_CODE, year, e.getMessage(), e);
             return Collections.emptySet();
         }
     }
